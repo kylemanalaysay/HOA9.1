@@ -1,0 +1,30 @@
+---
+
+- name: install prometheus
+  shell: sudo wget https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz;tar -xvzf prometheus-2.39.1.linux-amd64.tar.gz
+  become: true
+
+- name: change the owner
+  shell: chown prometheus:prometheus /etc/prometheus;chown prometheus:prometheus /var/lib/prometheus
+  become: true
+
+- name: copy to /usr/local/bin
+  shell: mv prometheus-2.39.1.linux-amd64 prometheuspackage;sudo cp prometheuspackage/prometheus /usr/local/bin/;sudo cp prometheuspackage/promtool /usr/local/bin/
+  become: true
+
+- name: change the ownership to prometheus user
+  shell: chown prometheus:prometheus /usr/local/bin/prometheus;chown prometheus:prometheus /usr/local/bin/promtool
+  become: true
+
+- name: copy consoles and console_libraries directories
+  shell: sudo cp -r prometheuspackage/consoles /etc/prometheus;sudo cp -r prometheuspackage/console_libraries /etc/prometheus;chown -R prometheus:prometheus /etc/prometheus/consoles;chown -R prometheus:prometheus /etc/prometheus/console_libraries
+  become: true
+
+- name: change the ownership of configuration file
+  shell: chown prometheus:prometheus /etc/prometheus/prometheus.yml
+  become: true
+
+- name: start prometheus
+  shell: systemctl daemon-reload;systemctl start prometheus;firewall-cmd --zone=public --add-port=9090/tcp --permanent;systemctl reload firewalld
+  become: true
+
