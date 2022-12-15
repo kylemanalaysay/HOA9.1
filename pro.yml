@@ -1,0 +1,11 @@
+---
+
+- hosts: db_servers
+  become: true
+  roles:
+    - prometheus
+
+- hosts: file_servers
+  become: true
+  roles:
+    - prometheus2
